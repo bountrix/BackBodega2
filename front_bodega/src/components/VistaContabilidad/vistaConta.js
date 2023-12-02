@@ -14,13 +14,38 @@ const VistaContabilidad = () => {
     navigate("/");
   };
 
+  
+
+
   return (
     <div className="div-contabilidad">
-      <div style={{display:"flex",flexDirection:"row-reverse"}}>
+      <div style={{display:"flex",flexDirection:"row-reverse",justifyContent:"space-around",alignItems:"center"}}>
         <button className="boton-cerrar-sesion" onClick={handleCerrarSesion}>
           Cerrar Sesión
         </button>
+        <h1 style={{
+          fontSize: '32px',
+          fontWeight: 'bold',
+          marginBottom: '20px',
+          display: 'block',
+          fontFamily: 'cursive',
+          color: 'white',
+          background: "#999999",
+          borderRadius: '5px',
+          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
+          textAlign: 'center',
+          width:"80%"
+        }}>Grafico de la informacion de productos</h1>
         </div>
+        
+      <div>
+        <button className="boton-cerrar-sesion"  onClick={()=>{mostrarGrafico('GraficoA')}}>
+          Grafico Salida de productos
+        </button>
+        <button className="boton-cerrar-sesion"  onClick={()=>{mostrarGrafico('GraficoB')}}>
+          TOP productos sin stock
+        </button>
+      </div>
       <div>
         {graficoSeleccionado === "GraficoA" && <GraficoA />}
       </div>

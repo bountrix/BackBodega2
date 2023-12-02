@@ -6,10 +6,15 @@ import axios from "axios";
 import * as am5plugins_exporting from "@amcharts/amcharts5/plugins/exporting";
 const GraficoTotales = () => {
   const [data1, setData1] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [producto, setProducto] = useState([]);
 
   const TraerData = () => {
     axios
-      .get("http://127.0.0.1:8000/traer_grafico/")
+      .get("http://127.0.0.1:8000/obtener_historial_descuentan/",{params:{
+        producto:producto
+      }})
       .then((res) => {
         if (res.data.estado) {
           setData1(res.data.data);
@@ -19,119 +24,114 @@ const GraficoTotales = () => {
       });
   };
 
+  const TraerProductos = () => {
+    axios
+      .get("http://127.0.0.1:8000/Traer_pro_historial/")
+      .then((res) => {
+        if (res.data.estado) {
+          setProductos(res.data.data);
+          console.log(productos);
+        } else {
+          console.log("salio mal");
+        }
+      });
+  };
+  
+  const handleChange = (event) => {
+     setProductoSeleccionado(event.target.value);
+     TraerData();
+  };
+
   useEffect(() => {
     TraerData();
+    TraerProductos();
+    
   }, []);
 
   useEffect(() => {
-    const root = am5.Root.new("chartdiv");
-    console.log(data1);
+
+    let root = am5.Root.new("chartdiv");
+
     root.setThemes([
       am5themes_Animated.new(root)
     ]);
     
-    
-    // Create chart
-    // https://www.amcharts.com/docs/v5/charts/xy-chart/
+ 
     let chart = root.container.children.push(am5xy.XYChart.new(root, {
-      panX: false,
-      panY: false,
-      layout: root.verticalLayout
+
+      pinchZoomX: true,
+      paddingLeft:0,
+      paddingRight:1
     }));
     
-    
-    // Add legend
-    // https://www.amcharts.com/docs/v5/charts/xy-chart/legend-xy-series/
-    let legend = chart.children.push(
-      am5.Legend.new(root, {
-        centerX: am5.p50,
-        x: am5.p50
-      })
-    );
-    
-    let data = data1
+
+    let cursor = chart.set("cursor", am5xy.XYCursor.new(root, {}));
+    cursor.lineY.set("visible", false);
     
     
-    // Create axes
-    // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
-    let xRenderer = am5xy.AxisRendererX.new(root, {
-      cellStartLocation: 0.1,
-      cellEndLocation: 0.9
-    })
+  
+    let xRenderer = am5xy.AxisRendererX.new(root, { 
+      minGridDistance: 30, 
+      minorGridEnabled: true
+    });
     
-    let xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
-      categoryField: "fecha",
-      renderer: xRenderer,
-      tooltip: am5.Tooltip.new(root, {})
-    }));
+    xRenderer.labels.template.setAll({
+      rotation: -90,
+      centerY: am5.p50,
+      centerX: am5.p100,
+      paddingRight: 15
+    });
     
     xRenderer.grid.template.setAll({
       location: 1
     })
     
-    xAxis.data.setAll(data);
+    let xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
+      maxDeviation: 0.3,
+      categoryField: "fecha_truncada",
+      renderer: xRenderer,
+      tooltip: am5.Tooltip.new(root, {})
+    }));
+    
+    let yRenderer = am5xy.AxisRendererY.new(root, {
+      strokeOpacity: 0.1
+    })
     
     let yAxis = chart.yAxes.push(am5xy.ValueAxis.new(root, {
-      renderer: am5xy.AxisRendererY.new(root, {
-        strokeOpacity: 0.1
+      maxDeviation: 0.3,
+      renderer: yRenderer
+    }));
+    
+
+    let series = chart.series.push(am5xy.ColumnSeries.new(root, {
+      name: "Series 1",
+      xAxis: xAxis,
+      yAxis: yAxis,
+      valueYField: "total",
+      sequencedInterpolation: true,
+      categoryXField: "fecha_truncada",
+      tooltip: am5.Tooltip.new(root, {
+        labelText: "{valueY}"
       })
     }));
     
-    
-    // Add series
-    // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
-    function makeSeries(name, fieldName) {
-      let series = chart.series.push(am5xy.ColumnSeries.new(root, {
-        name: name,
-        xAxis: xAxis,
-        yAxis: yAxis,
-        valueYField: fieldName,
-        categoryXField: "fecha"
-      }));
-    
-      series.columns.template.setAll({
-        tooltipText: "{name}: {valueY}",
-        width: am5.percent(90),
-        tooltipY: 0,
-        strokeOpacity: 0
-      });
-    
-      series.data.setAll(data);
-    
-      // Make stuff animate on load
-      // https://www.amcharts.com/docs/v5/concepts/animations/
-      series.appear();
-    
-      series.bullets.push(function() {
-        return am5.Bullet.new(root, {
-          locationY: 0,
-          sprite: am5.Label.new(root, {
-            text: "{valueY}",
-            fill: root.interfaceColors.get("alternativeText"),
-            centerY: 0,
-            centerX: am5.p50,
-            populateText: true
-          })
-        });
-      });
-    
-      legend.data.push(series);
-    }
-
-    makeSeries("Producto Ingresado", "Producto Ingresado");
-    makeSeries("Producto descontado", "Producto descontado");
-    makeSeries("Producto agregado", "Producto agregado");
-    
-    
-    let exporting = am5plugins_exporting.Exporting.new(root, {
-      menu: am5plugins_exporting.ExportingMenu.new(root, {}),
-      dataSource: data,
-      filePrefix: "myChart"
+    series.columns.template.setAll({ cornerRadiusTL: 5, cornerRadiusTR: 5, strokeOpacity: 0 });
+    series.columns.template.adapters.add("fill", function (fill, target) {
+      return chart.get("colors").getIndex(series.columns.indexOf(target));
     });
     
+    series.columns.template.adapters.add("stroke", function (stroke, target) {
+      return chart.get("colors").getIndex(series.columns.indexOf(target));
+    });
     
-    // Make stuff animate on load
-    // https://www.amcharts.com/docs/v5/concepts/animations/
+    console.log(data1);
+    let data = data1;
+    
+    xAxis.data.setAll(data);
+    series.data.setAll(data);
+    
+    
+    series.appear(1000);
     chart.appear(1000, 100);
 
     return () => {
@@ -141,20 +141,16 @@ const GraficoTotales = () => {
 
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
-      <h1 style={{
-          fontSize: '32px',
-          fontWeight: 'bold',
-          marginBottom: '20px',
-          display: 'block',
-          fontFamily: 'cursive',
-          color: 'white',
-          padding: '10px',
-          background: "#999999",
-          borderRadius: '5px',
-          boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-          textAlign: 'center',
-          width:"80%"
-        }}>Grafico de la informacion de productos</h1>
+      <select onChange={handleChange} value={productoSeleccionado}>
+        <option value="" disabled>
+          Selecciona un producto
+        </option>
+        {productos.map((producto) => (
+          <option key={producto.id} value={producto.id}>
+            {producto.nombre}
+          </option>
+        ))}
+      </select>
       <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
     </div>
   );

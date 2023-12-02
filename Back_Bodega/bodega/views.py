@@ -10,6 +10,7 @@ from django.db.models import Case, When, Value
 from itertools import groupby
 from operator import itemgetter
 from django.utils import timezone
+from django.db.models.functions import TruncDate
 
 @api_view(["GET"])
 def Traer_usuarios(request):
@@ -254,11 +255,15 @@ def obtener_historial_agregan_pesos(request):
 @api_view(["GET"])
 def obtener_historial_descuentan(request):
     if request.method == "GET":
-        resultados = Historial.objects.filter(his_modificacion='Producto descontado') \
-            .values('his_producto__pro_nombre') \
-            .annotate(producto=F('his_producto__pro_nombre'), total=Coalesce(Sum('his_cantidad'), 0)) \
-            .values('producto', 'total')
+        resultados = (
+            Historial.objects.filter(his_modificacion='Producto descontado')
+            .annotate(fecha_truncada=TruncDate('his_fecha_modificacion'))
+            .values('fecha_truncada')
+            .annotate(total=Coalesce(Sum('his_cantidad'), 0))
+        )
+        
         return Response({'estado': True, 'data': resultados})
+    
     return Response({'estado': False, 'mensaje': 'Método no permitido'})
 
 
@@ -398,3 +403,13 @@ def Cambiar_Estado_Producto(request, pro_id):
         except Productos.DoesNotExist:
             return Response({'estado': False, 'mensaje': 'Producto no encontrado'})
     return Response({'estado': False, 'mensaje': 'Método no permitido'})
+
+
+
+
+@api_view(["GET"])
+def Traer_pro_historial(request):
+    id=request.data.get("producto")
+    Productos = Historial.objects.values(id=F('his_producto'),nombre=F('his_producto__pro_nombre')).distinct()
+
+    return Response({'estado': True, 'data': Productos})

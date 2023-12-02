@@ -42,5 +42,7 @@ urlpatterns = [
     path('traer_grafico/',views.traer_grafico),
     path('Modificar_Usuario/',views.Modificar_Usuario),
     path('Traer_ProductosDes/',views.Traer_ProductosDes),
-    path('Cambiar_Estado_Producto/<int:pro_id>', views.Cambiar_Estado_Producto)
+    path('Cambiar_Estado_Producto/<int:pro_id>', views.Cambiar_Estado_Producto),
+    path('obtener_historial_descuentan/',views.obtener_historial_descuentan),
+    path('Traer_pro_historial/',views.Traer_pro_historial),
 ]

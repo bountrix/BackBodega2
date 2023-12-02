@@ -32,7 +32,7 @@ class Historial(models.Model):
     his_cantidad = models.BigIntegerField(blank=True, null=True)
     his_observacion = models.TextField(blank=True, null=True)
     his_cliente = models.BigIntegerField(blank=True, null=True)
-    his_producto = models.BigIntegerField(blank=True, null=True)
+    his_producto = models.ForeignKey('Productos', models.DO_NOTHING, db_column='his_producto', blank=True, null=True)
     his_usuario = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
