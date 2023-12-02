@@ -255,16 +255,27 @@ def obtener_historial_agregan_pesos(request):
 @api_view(["GET"])
 def obtener_historial_descuentan(request):
     if request.method == "GET":
-        resultados = (
-            Historial.objects.filter(his_modificacion='Producto descontado')
-            .annotate(fecha_truncada=TruncDate('his_fecha_modificacion'))
-            .values('fecha_truncada')
+
+        pro=request.GET.get("producto")
+
+        if pro:
+            resultados = (
+            Historial.objects.filter(his_modificacion='Producto descontado',his_producto=pro)
+            .annotate(fecha=TruncDate('his_fecha_modificacion'))
+            .values('fecha')
             .annotate(total=Coalesce(Sum('his_cantidad'), 0))
         )
-        
-        return Response({'estado': True, 'data': resultados})
+        else:
+            resultados = (
+                Historial.objects.filter(his_modificacion='Producto descontado')
+                .annotate(fecha=TruncDate('his_fecha_modificacion'))
+                .values('fecha')
+                .annotate(total=Coalesce(Sum('his_cantidad'), 0))
+            )
+        if resultados:
+            return Response({'estado': True, 'data': resultados})
     
-    return Response({'estado': False, 'mensaje': 'Método no permitido'})
+    return Response({'estado': False, 'mensaje': 'No se a descontado de este producto'})
 
 
 @api_view(["POST"])
@@ -409,7 +420,37 @@ def Cambiar_Estado_Producto(request, pro_id):
 
 @api_view(["GET"])
 def Traer_pro_historial(request):
-    id=request.data.get("producto")
-    Productos = Historial.objects.values(id=F('his_producto'),nombre=F('his_producto__pro_nombre')).distinct()
+    
+    Productos = Historial.objects.filter(his_producto__pro_estado=1).values(id=F('his_producto'),nombre=F('his_producto__pro_nombre')).distinct()
 
     return Response({'estado': True, 'data': Productos})
+
+
+
+
+
+@api_view(["GET"])
+def poco_stock(request):
+    productos=Productos.objects.filter(pro_stock__lt=20,pro_estado=1).values(producto=F('pro_nombre'),Stock=F('pro_stock'))
+    if productos:
+        return Response({'estado': True, 'data': productos})
+    return Response({'estado': False, 'mensaje': "No hay productos con bajo stock"})
+
+
+@api_view(["GET"])
+def producto_provedor(request):
+    pro=request.GET.get("producto")
+    if pro:
+        productos=Historial.objects.filter(his_producto__pro_estado=1,his_modificacion='Producto agregado',his_producto=pro) \
+    .values(producto=F('his_producto__pro_proveedore__prov_nombre')).annotate(Stock=Sum('his_producto__pro_stock'))
+    else:
+        productos=Historial.objects.filter(his_producto__pro_estado=1,his_modificacion='Producto agregado') \
+        .values(producto=F('his_producto__pro_proveedore__prov_nombre')).annotate(Stock=Sum('his_producto__pro_stock'))
+    if productos:
+        return Response({'estado': True, 'data': productos})
+    return Response({'estado': False, 'mensaje': "No se han agregado del producto seleccionado"})
+
+
+
+
+

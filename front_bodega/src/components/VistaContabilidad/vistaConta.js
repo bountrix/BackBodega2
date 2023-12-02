@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import GraficoA from "../../graficos/graficoprincipal";
 import GraficoB from "../../graficos/graficoprincipal1";
+import GraficoC from "../../graficos/graficoPrincipal2";
 import { useNavigate } from "react-router-dom";
 const VistaContabilidad = () => {
   const [graficoSeleccionado, setGraficoSeleccionado] = useState("GraficoA");
@@ -45,9 +46,14 @@ const VistaContabilidad = () => {
         <button className="boton-cerrar-sesion"  onClick={()=>{mostrarGrafico('GraficoB')}}>
           TOP productos sin stock
         </button>
+        <button className="boton-cerrar-sesion"  onClick={()=>{mostrarGrafico('GraficoC')}}>
+          Productos por proveedor
+        </button>
       </div>
       <div>
         {graficoSeleccionado === "GraficoA" && <GraficoA />}
+        {graficoSeleccionado === "GraficoB" && <GraficoB />}
+        {graficoSeleccionado === "GraficoC" && <GraficoC />}
       </div>
     </div>
   );

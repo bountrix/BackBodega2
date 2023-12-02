@@ -559,7 +559,7 @@ const VistaBodega = () => {
                     </option>
                   ))}
                 </select> 
-                <button onClick={toggleAgregarContainer2}style={{width:"55px",height:"30px",fontSize:"9px",padding:"0",background:"green",margin:"0",marginLeft:"10px"}}>Agregar Marca</button>
+                <button type="button" onClick={toggleAgregarContainer2}style={{width:"55px",height:"30px",fontSize:"9px",padding:"0",background:"green",margin:"0",marginLeft:"10px",color:"white"}}>Agregar Marca</button>
               </div>
               <label>Fecha de Vencimiento:</label>
               <input
@@ -624,7 +624,7 @@ const VistaBodega = () => {
                   </option>
                 ))}
               </select>
-              <button onClick={toggleAgregarContainer3} style={{width:"55px",height:"30px",fontSize:"9px",padding:"0",background:"green",margin:"0",marginLeft:"10px"}}>Agregar Proveedor</button>
+              <button type="button" onClick={toggleAgregarContainer3} style={{width:"55px",height:"30px",fontSize:"9px",padding:"0",background:"green",margin:"0",marginLeft:"10px",color:"white"}}>Agregar Proveedor</button>
               </div>
               <div style={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>
               <button type="submit">Agregar Producto</button>

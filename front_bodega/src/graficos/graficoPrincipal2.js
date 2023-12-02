@@ -4,15 +4,13 @@ import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
 import axios from "axios";
 import * as am5plugins_exporting from "@amcharts/amcharts5/plugins/exporting";
-const GraficoTotales = () => {
+const GraficoTotales1 = () => {
   const [data1, setData1] = useState([]);
   const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState("");
-
-
   const TraerData = () => {
     axios
-      .get("http://127.0.0.1:8000/obtener_historial_descuentan/",{params:{
+      .get("http://127.0.0.1:8000/producto_provedor/",{params:{
         producto:productoSeleccionado
       }})
       .then((res) => {
@@ -20,7 +18,7 @@ const GraficoTotales = () => {
           setData1(res.data.data);
         } else {
           console.log("salio mal");
-          alert(res.data.mensaje);
+          alert(res.data.mensaje)
         }
       });
   };
@@ -37,24 +35,25 @@ const GraficoTotales = () => {
         }
       });
   };
-  
+
   const handleChange = (event) => {
     console.log(event.target.value);
      setProductoSeleccionado(event.target.value)
   };
 
+
   useEffect(() => {
     TraerData();
     TraerProductos();
   }, []);
-
+  
   useEffect(() => {
     TraerData();
   }, [productoSeleccionado]);
 
   useEffect(() => {
 
-    let root = am5.Root.new("chartdiv");
+    let root = am5.Root.new("chartdiv2");
 
     root.setThemes([
       am5themes_Animated.new(root)
@@ -92,7 +91,7 @@ const GraficoTotales = () => {
     
     let xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(root, {
       maxDeviation: 0.3,
-      categoryField: "fecha",
+      categoryField: "producto",
       renderer: xRenderer,
       tooltip: am5.Tooltip.new(root, {})
     }));
@@ -111,9 +110,9 @@ const GraficoTotales = () => {
       name: "Series 1",
       xAxis: xAxis,
       yAxis: yAxis,
-      valueYField: "total",
+      valueYField: "Stock",
       sequencedInterpolation: true,
-      categoryXField: "fecha",
+      categoryXField: "producto",
       tooltip: am5.Tooltip.new(root, {
         labelText: "{valueY}"
       })
@@ -157,7 +156,7 @@ const GraficoTotales = () => {
 
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
-      <h1 style={{
+     <h1 style={{
           fontSize: '32px',
           fontWeight: 'bold',
           marginBottom: '20px',
@@ -169,8 +168,8 @@ const GraficoTotales = () => {
           boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
           textAlign: 'center',
           width:"80%"
-        }}>Grafico de Salida de Productos</h1>
-      <select onChange={handleChange} value={productoSeleccionado}>
+        }}>Ingreso de productos por proveedor</h1>
+        <select onChange={handleChange} value={productoSeleccionado}>
         <option value="" disabled>
           Selecciona un producto
         </option>
@@ -180,9 +179,9 @@ const GraficoTotales = () => {
           </option>
         ))}
       </select>
-      <div id="chartdiv" style={{ width: "100%", height: "500px" }}></div>
+      <div id="chartdiv2" style={{ width: "100%", height: "500px" }}></div>
     </div>
   );
 };
 
-export default GraficoTotales;
+export default GraficoTotales1;

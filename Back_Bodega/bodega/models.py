@@ -58,7 +58,7 @@ class Productos(models.Model):
     pro_precio = models.BigIntegerField(blank=True, null=True)
     pro_descripcion = models.TextField(blank=True, null=True)
     pro_marca =  models.ForeignKey(Marcas, models.DO_NOTHING, db_column='pro_marca', blank=True, null=True)
-    pro_proveedore = models.BigIntegerField(blank=True, null=True)
+    pro_proveedore =  models.ForeignKey('Proveedores', models.DO_NOTHING, db_column='pro_proveedore', blank=True, null=True)
     pro_estado = models.BigIntegerField(blank=True, null=True)
 
     class Meta:

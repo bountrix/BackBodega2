@@ -45,4 +45,6 @@ urlpatterns = [
     path('Cambiar_Estado_Producto/<int:pro_id>', views.Cambiar_Estado_Producto),
     path('obtener_historial_descuentan/',views.obtener_historial_descuentan),
     path('Traer_pro_historial/',views.Traer_pro_historial),
+    path('poco_stock/',views.poco_stock),
+    path('producto_provedor/',views.producto_provedor),
 ]
